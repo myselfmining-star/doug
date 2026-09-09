@@ -1,0 +1,165 @@
+<div class="cml-v112-wrapper">
+    <!-- Title Line -->
+    <div class="cml-v112-title-line">
+        <div class="cml-v112-title-left">
+            <span class="cml-v112-id"><%= cml.rawCml.EV_CML_CONCAT_NUMBER || 'N/A' %></span>
+            <span class="cml-v112-subtitle">
+                <%= cml.rawCml.EV_OUT_DIA || '' %> <%= cml.rawCml.EV_COMPONENT_SHAPE || '' %> &middot; <%= Array.isArray(cml.rawCml.FV_MATERIAL) ? cml.rawCml.FV_MATERIAL.join(', ') : (cml.rawCml.FV_MATERIAL || '') %>
+            </span>
+        </div>
+        <div class="cml-v112-status">
+            <span style="color: <%= cml.v50.statusColor %>"><%= cml.v50.statusText %></span>
+            <span class="cml-v112-status-dash">-</span> 
+            <span class="cml-v112-trend"><%= cml.v50.trendText %></span>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="cml-v112-table-container">
+        <div class="cml-v112-grid">
+            <!-- Row 1 -->
+            <div>
+                <div class="cml-v112-lbl">MAWP (PSI/KPA)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_MAWP || 'N/A' %> <span class="cml-v112-val-sub">/ <%= cml.rawCml.EV_MAWP_KPA || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">MAWT (F/C)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_MAWT || 'N/A' %> <span class="cml-v112-val-sub">/ <%= cml.rawCml.EV_MAWT_C || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">C.A. (IN/MM)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_COR_ALLOW || 'N/A' %> <span class="cml-v112-val-sub">/ <%= cml.rawCml.EV_COR_ALLOW_MM || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">RT / STRESS (PSI)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_SHELL_EFF || 'N/A' %> <span class="cml-v112-val-sub">&middot; <%= cml.rawCml.FV_SH_CURRENT || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">BUILD YEAR</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_BLD_YEAR || 'N/A' %>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div>
+                <div class="cml-v112-lbl">OD (IN/MM)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_OUT_DIA || 'N/A' %> <span class="cml-v112-val-sub">/ <%= cml.rawCml.EV_OUT_DIA_MM || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">NOMINAL (IN/MM)</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.EV_NOM_THK || 'N/A' %> <span class="cml-v112-val-sub">/ <%= cml.rawCml.EV_NOM_THK_MM || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">CURRENT THICKNESS</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.ACTUAL_T || 'N/A' %> <span class="cml-v112-val-low-avg">low</span> <span class="cml-v112-val-sub">- <%= cml.rawCml.HL_AVG || 'N/A' %> <span style="font-size: 8px;">avg</span></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">WALL LOSS</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.WALL_LOSS || 'N/A' %> <span class="cml-v112-val-sub">&middot; <%= cml.rawCml.WALL_LOSS_PERC || 'N/A' %></span>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">C.A. REMAINING</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.REMAIN_CA || 'N/A' %>
+                </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div>
+                <div class="cml-v112-lbl">STCR</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.STCR || 'N/A' %>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">LTCR</div>
+                <div class="cml-v112-val">
+                    <%= cml.rawCml.LTCR || 'N/A' %>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">T-MIN</div>
+                <div class="cml-v112-val">
+                    <%= cml.v50.tminDisplay %>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">RETIREMENT DATE</div>
+                <div class="cml-v112-val">
+                    <%= cml.v50.retDateDisplay %>
+                </div>
+            </div>
+            <div>
+                <div class="cml-v112-lbl">NEXT INSPECTION</div>
+                <div class="cml-v112-val">
+                    <%= cml.v50.nextInspDisplay %>
+                </div>
+            </div>
+        </div>
+        <div class="cml-v112-note">
+            <%= cml.rawCml.CML_NOTE || 'N/A' %>
+        </div>
+    </div>
+
+    <!-- Chart and Photo Section -->
+    <div class="cml-v112-media-box">
+        <div class="cml-v112-chart-col">
+            <div style="flex: 1; width: 100%; position: relative;">
+                <canvas id="barChart_<%= cml.index %>"></canvas>
+            </div>
+        </div>
+        <div class="cml-v112-photo-col">
+            <% if (cml.photo) { %>
+                <img src="<%= cml.photo %>" alt="CML Photo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            <% } else { %>
+                <div class="cml-v112-photo-placeholder">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    CML PHOTO
+                </div>
+            <% } %>
+            <% if (cml.rawCml.CML_IMG && cml.rawCml.CML_IMG.length > 1) { %>
+                <div class="cml-v112-photo-appendix">
+                    <%= cml.rawCml.CML_IMG.length - 1 %> further photos in the appendix
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Assessment Section -->
+    <div class="cml-v112-assessment-box">
+        <table class="cml-v112-assessment-table">
+            <tr class="cml-v112-assessment-row">
+                <td class="cml-v112-assessment-lbl">ASSESSMENT</td>
+                <td class="cml-v112-assessment-val">
+                    <%- cml.v50.compStatHtml %>
+                </td>
+            </tr>
+            <tr class="cml-v112-assessment-row">
+                <td class="cml-v112-assessment-lbl">TECHNICIAN</td>
+                <td class="cml-v112-assessment-val"><%= cml.rawCml.NEW_COMMENTS || '' %></td>
+            </tr>
+            <tr>
+                <td class="cml-v112-assessment-lbl">CHIEF INSPECTOR</td>
+                <td class="cml-v112-assessment-val"><%= cml.rawCml.CHIEF_COMMENTS || '' %></td>
+            </tr>
+        </table>
+    </div>
+</div>
+

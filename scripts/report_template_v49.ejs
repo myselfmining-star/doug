@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Corrosion Survey Report</title>
+    <style>
+        <%- cssContent %>
+    </style>
+    <!-- Include Chart.js via bundled inline script -->
+    <script><%- chartJsContent %></script>
+</head>
+
+<body>
+    <% const globalHeader=` <div class="ngh-wrapper">
+        <div class="ngh-logo">
+            <img src="${headerLogo}" alt="Logo">
+        </div>
+        <div class="ngh-content">
+            <div class="ngh-top-row">
+                <div class="ngh-title-block">
+                    <div class="ngh-main-title">ASSET TRACKER</div>
+                    <div class="ngh-sub-title">Inspection Management Solutions</div>
+                </div>
+                <div class="ngh-dynamic-data">
+                    ${headerData.owner} &nbsp;|&nbsp; ${headerData.sequence} &nbsp;|&nbsp; ${headerData.date}
+                </div>
+            </div>
+            <div class="ngh-orange-line"></div>
+            <div class="ngh-bottom-row"
+                style="text-align: right; font-size: 10px; font-weight: 800; color: #1a365d; padding-top: 3px;">
+                ${coverData.equipId} &nbsp;|&nbsp; ${coverData.serialNumber}
+            </div>
+        </div>
+        </div>
+        `;
+
+        const pipingLTCRCMLs = processedCMLs.filter(cml => cml.rawCml.EV_COMPONENT && cml.rawCml.EV_COMPONENT.toLowerCase().includes('piping'));
+        const vesselLTCRCMLs = processedCMLs.filter(cml => !cml.rawCml.EV_COMPONENT || !cml.rawCml.EV_COMPONENT.toLowerCase().includes('piping'));
+        const pipingLTCRPagesCount = Math.ceil(pipingLTCRCMLs.length / 8);
+        const vesselLTCRPagesCount = Math.ceil(vesselLTCRCMLs.length / 8);
+
+        const pipingCmlPagesCount = Math.ceil(pipingLTCRCMLs.length / 2);
+        const vesselCmlPagesCount = Math.ceil(vesselLTCRCMLs.length / 2);
+
+        let totalReportPages = 1 + 1 + 1 + 1 + ((typeof isoImages !== 'undefined' && isoImages) ? isoImages.length : 0) + pipingLTCRPagesCount + vesselLTCRPagesCount + pipingCmlPagesCount + vesselCmlPagesCount + 1;
+        let currentPageIdx = 2; // Cover is page 1, next page is 2
+        %>
+
+        <!-- NEW COVER PAGE -->
+        <div class="new-cover-page">
+            <%- globalHeader %>
+                <div class="new-cover-content">
+                    <div
+                        style="width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; margin-top: 10px;">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="new-cover-title">CORROSION SURVEY</div>
+                            <div class="new-cover-subtitle"><%= typeof reportSubtitle !== 'undefined' ? reportSubtitle : 'PRESSURE EQUIPMENT / PRESSURE PIPING' %></div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Scorecard Section Removed -->
+                </div>
+
+                <div class="new-hero-section">
+                    <% if (overImg) { %>
+                        <img src="<%= overImg %>" class="new-hero-img" alt="Vessel Overview"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                        <% } %>
+                            <div class="new-hero-gradient"></div>
+                </div>
+
+                <div class="new-cover-footer">
+                    <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+                </div>
+        </div>
+
+        <!-- SECTION 1: NAMEPLATE PAGE -->
+        <div class="page">
+            <%- globalHeader %>
+
+                <div class="image-frame-orange"
+                    style="margin-bottom: 20px; height: 400px; display: flex; justify-content: center; align-items: center;">
+                    <% if (nameImg) { %>
+                        <img src="<%= nameImg %>" alt="Nameplate Image"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        <% } else { %>
+                            <div style="color: #94A3B8; font-weight: 600;">No Nameplate Image Available</div>
+                            <% } %>
+                </div>
+
+                
+                                    <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Nameplate Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% nameplateData.forEach(item=> { %>
+                            <tr>
+                                <td style="font-weight: 800;">
+                                    <%= item.label %>
+                                </td>
+                                <td>
+                                    <%= item.value %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+
+                <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 1;"></div>
+    <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+    <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+</div>
+        </div>
+
+        <!-- SECTION 2: LEASE PAGE -->
+        <div class="page">
+            <%- globalHeader %>
+
+                <div class="lease-layout"
+                    style="display: flex; flex-direction: column; flex: 1; min-height: 0; margin-bottom: 20px; gap: 10px;">
+                    <div class="image-frame-orange"
+                        style="flex: 0 0 35%; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 10px;">
+                        <% if (leaseImg) { %>
+                            <img src="<%= leaseImg %>" alt="Lease Image"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            <% } %>
+                    </div>
+
+                    <div class="lease-data-box" style="flex: 0 0 auto;">
+                        <table class="ref-table" style="margin-bottom: 0; width: 100%;">
+                            <tbody>
+                                <% leaseData.forEach(item=> { %>
+                                    <tr>
+                                        <td style="font-weight: 800; width: 50%;">
+                                            <%= item.label %>
+                                        </td>
+                                        <td style="width: 50%;">
+                                            <%= item.value %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="image-frame-orange"
+                        style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 10px;">
+                        <% if (bldImg) { %>
+                            <img src="<%= bldImg %>" alt="Build Image"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            <% } %>
+                    </div>
+                </div>
+
+                <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 1;"></div>
+    <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+    <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+</div>
+        </div>
+
+        <!-- SECTION 3: OVERVIEW PAGE -->
+        <div class="page">
+            <%- globalHeader %>
+
+                <div class="overview-layout" style="flex-direction: column;">
+                    <div class="overview-top" style="height: 700px; margin-bottom: 20px;">
+                        <div class="image-frame-orange"
+                            style="height: 100%; border: 3px solid #1a365d; box-shadow: inset 0 0 0 4px #ffffff, inset 0 0 0 7px #f97316; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8fafc; padding: 15px;">
+                            <% if (overImg) { %>
+                                <img src="<%= overImg %>" alt="Overview Image"
+                                    style="width: 100%; height: 100%; object-fit: fill;">
+                                <% } else { %>
+                                    <div style="color: #94A3B8; font-weight: 600;">No Overview Image Available</div>
+                                    <% } %>
+                        </div>
+                    </div>
+                    <div class="overview-bottom" style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                        <% overviewData.forEach(section=> { %>
+                            <table class="ref-table" style="width: 100%; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            style="background-color: #1a365d; color: white; font-weight: 800; width: 22%; padding: 6px 10px; font-size: 9px; white-space: nowrap;">
+                                            <%= section.heading %>
+                                        </td>
+                                        <td style="padding: 6px 10px; font-size: 9px; width: 78%;">
+                                            <div
+                                                style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                                                <% section.items.forEach((item, index)=> { %>
+                                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                                        <span style="font-weight: 800; color: #1a365d;">
+                                                            <%= item.label %>
+                                                        </span>
+                                                        <span style="color: #94a3b8;">|</span>
+                                                        <span style="font-weight: normal;">
+                                                            <%= item.value %>
+                                                        </span>
+                                                    </div>
+                                                    <% if (index < section.items.length - 1) { %>
+                                                        <div
+                                                            style="height: 12px; width: 1px; background-color: #94a3b8;">
+                                                        </div>
+                                                        <% } %>
+                                                            <% }); %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <% }); %>
+                    </div>
+                </div>
+
+                <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 1;"></div>
+    <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+    <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+</div>
+        </div>
+
+
+
+
+        <!-- SECTION 4: ISO DRAWING PAGES -->
+        <% if (typeof isoImages !== 'undefined' && isoImages && isoImages.length > 0) { %>
+            <% isoImages.forEach((imgSrc) => { %>
+                <div class="page">
+                    <%- globalHeader %>
+                    
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 20px 0; margin-bottom: 20px;">
+                        <img src="<%= imgSrc %>" alt="ISO Drawing" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 2px solid #1a365d; padding: 5px;">
+                    </div>
+                    
+                    <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                        <div style="flex: 1;"></div>
+                        <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+                        <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
+
+                <!-- HELPER FUNCTIONS FOR RENDERING -->
+                <% function renderCmlDetailPages(cmlArray, pageCount) {
+                    for (let pageIdx=0; pageIdx < pageCount; pageIdx++) {
+                        const pageCMLs = cmlArray.slice(pageIdx * 2, pageIdx * 2 + 2);
+                %>
+                    <div class="page">
+                        <%- globalHeader %>
+                            <div class="cml-list">
+                                <% pageCMLs.forEach((cml)=> { %>
+                                    <div class="cml-item-wrapper" style="display: flex; flex-direction: column; flex: 0 0 calc(50% - 7.5px); min-height: 0; overflow: hidden;">
+                                        <div
+                                            style="font-size: 11px; font-weight: 900; color: #1a365d; margin-bottom: 2px; text-transform: uppercase; flex-shrink: 0;">
+                                            CML # <%= cml.concatId %>
+                                        </div>
+                                        <!-- Data Grid Moved Outside -->
+                                        <div class="ref-cml-data-grid"
+                                            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 4px; border-radius: 4px; flex-shrink: 0;">
+                                            <% cml.cardDetails.forEach(detail=> { %>
+                                                <div class="ref-cml-data-item">
+                                                    <div class="ref-cml-lbl"
+                                                        style="font-size: 7.5px; color: #64748b; font-weight: 800; text-transform: uppercase;">
+                                                        <%= detail.label %>
+                                                    </div>
+                                                    <div class="ref-cml-val"
+                                                        style="font-size: 8.5px; font-weight: 600; color: #0f172a; margin-top: 2px;">
+                                                        <%= detail.value %>
+                                                    </div>
+                                                </div>
+                                                <% }); %>
+                                        </div>
+
+                                        <div class="ref-cml-card" style="flex: 1; margin-bottom: 0; min-height: 0;">
+                                            <div class="ref-cml-body" style="display: flex; width: 100%; gap: 10px; min-height: 0; flex: 1;">
+                                                <!-- LEFT CHARTS -->
+                                                <div class="ref-cml-charts" style="flex: 0 0 38%; min-width: 0; min-height: 0; display: flex; flex-direction: column;">
+                                                    <!-- Bar chart -->
+                                                    <div class="ref-chart-container"
+                                                        style="flex: 1; width: 100%; min-height: 0; position: relative;">
+                                                        <canvas id="barChart_<%= cml.index %>"></canvas>
+                                                    </div>
+                                                </div>
+
+                                                <!-- RIGHT PHOTO -->
+                                                <div class="ref-cml-photo"
+                                                    style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0;">
+                                                    <% if (cml.photo) { %>
+                                                        <img src="<%= cml.photo %>" alt="CML Photo"
+                                                            style="width: 100%; height: 100%; object-fit: contain;">
+                                                        <% } else { %>
+                                                            <div style="color: #94a3b8; font-size: 10px;">No Image Available
+                                                            </div>
+                                                            <% } %>
+                                                </div>
+                                            </div>
+
+                                            <div class="ref-cml-footer" style="margin-top: 4px; font-size: 8px; flex-shrink: 0;">
+                                                <strong>Current Comments:</strong>
+                                                <%= cml.inspectorComments || 'No Comments Logged' %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+
+                            <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;"></div>
+                                <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+                                <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+                            </div>
+                    </div>
+                <%  }
+                } %>
+
+                <% function renderLTCRPages(cmlArray, pageCount, suffix) {
+                    for(let i=0; i<pageCount; i++) { 
+                        const pageCMLs = cmlArray.slice(i * 8, i * 8 + 8); 
+                %>
+                    <div class="page">
+                        <%- globalHeader %>
+                            <div class="section-title">LTCR - <%= suffix %></div>
+
+                            <div class="line-charts-grid"
+                                style="display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content; gap: 10px; flex: 1; margin-bottom: 20px;">
+                                <% pageCMLs.forEach(cml=> { %>
+                                    <div class="line-chart-item"
+                                        style="border: 1px solid #1a365d; padding: 5px; display: flex; flex-direction: column;">
+                                        <div
+                                            style="font-size: 8px; font-weight: bold; color: #1a365d; margin-bottom: 5px; text-align: center; text-transform: uppercase;">
+                                            Drawing: <%= cml.rawCml.FV_CML_DRAWING || 'N/A' %> | CML: <%=
+                                                    cml.cmlNumber %>
+                                        </div>
+                                        <div
+                                            style="width: 100%; height: auto; aspect-ratio: 16/9; position: relative;">
+                                            <canvas id="lineChart_standalone_<%= cml.index %>"></canvas>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+
+                            <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;"></div>
+                                <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+                                <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+                            </div>
+                    </div>
+                <%  }
+                } %>
+
+                <!-- RENDERING -->
+                <% renderCmlDetailPages(vesselLTCRCMLs, vesselCmlPagesCount); %>
+                <% renderLTCRPages(vesselLTCRCMLs, vesselLTCRPagesCount, "VESSEL"); %>
+                <% renderCmlDetailPages(pipingLTCRCMLs, pipingCmlPagesCount); %>
+                <% renderLTCRPages(pipingLTCRCMLs, pipingLTCRPagesCount, "PIPING"); %>
+
+                                <!-- SECTION 6: REGULATORY SUMMARY & CALIBRATION LOG -->
+                                <div class="page">
+                                    <%- globalHeader %>
+
+
+
+                                        <table class="ref-table">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="6">NDT Examination Instrument & Calibration Log</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Equipment / Instrument Description</th>
+                                                    <th>Make / Model</th>
+                                                    <th>Serial Number</th>
+                                                    <th>Size</th>
+                                                    <th>Calibration Date</th>
+                                                    <th>Calibration Due</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% ndtTableData.forEach(eq=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= eq.equipment %>
+                                                        </td>
+                                                        <td>
+                                                            <%= eq.makeModel %>
+                                                        </td>
+                                                        <td>
+                                                            <%= eq.serialNumber %>
+                                                        </td>
+                                                        <td>
+                                                            <%= eq.size %>
+                                                        </td>
+                                                        <td>
+                                                            <%= eq.calDate %>
+                                                        </td>
+                                                        <td>
+                                                            <%= eq.calDue %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }); %>
+                                            </tbody>
+                                        </table>
+
+                                        <table class="ref-table" style="margin-bottom: 5px;">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2">Examiner Information</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% examinerData.forEach((item, index)=> { %>
+                                                    <tr>
+                                                        <td style="font-weight: 800; width: 50%;">
+                                                            <%= item.label %>
+                                                        </td>
+                                                        <td style="width: 50%;">
+                                                            <%= item.value %>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                                <tr>
+                                                    <td colspan="2" style="padding: 5px;">
+                                                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; height: 65px;">
+                                                            <div style="border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; height: 100%; background: #ffffff; overflow: hidden; padding: 2px; box-sizing: border-box;">
+                                                                <% if (certNrcanFront) { %><img src="<%= certNrcanFront %>" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"><% } %>
+                                                            </div>
+                                                            <div style="border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; height: 100%; background: #ffffff; overflow: hidden; padding: 2px; box-sizing: border-box;">
+                                                                <% if (certNrcanBack) { %><img src="<%= certNrcanBack %>" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"><% } %>
+                                                            </div>
+                                                            <div style="border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; height: 100%; background: #ffffff; overflow: hidden; padding: 2px; box-sizing: border-box;">
+                                                                <% if (certAt1) { %><img src="<%= certAt1 %>" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"><% } %>
+                                                            </div>
+                                                            <div style="border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; height: 100%; background: #ffffff; overflow: hidden; padding: 2px; box-sizing: border-box;">
+                                                                <% if (certAt2) { %><img src="<%= certAt2 %>" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"><% } %>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        
+
+                                                                                <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                                            <div style="flex: 1;"></div>
+                                            <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+                                            <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+                                        </div>
+                                </div>
+                                
+                                <div class="page" style="page-break-before: always; display: flex; flex-direction: column;">
+                                    <%- globalHeader %>
+                                    
+                                      <table class="ref-table" style="margin-bottom: 5px;">
+                                          <thead>
+                                              <tr>
+                                                  <th colspan="2">Scope</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody style="font-size: 9px;">
+                                              <% scopeData.forEach(item => { %>
+                                              <tr>
+                                                  <td style="width: 33%;"><%= item.label %></td>
+                                                  <td style="width: 67%;"><%= item.value %></td>
+                                              </tr>
+                                              <% }); %>
+                                          </tbody>
+                                      </table>
+                                      
+                                      <table class="ref-table" style="margin-bottom: 5px;">
+                                          <thead>
+                                              <tr>
+                                                  <th colspan="3">Assessment</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody style="font-size: 9px;">
+                                              <tr>
+        <td style="width: 33%;">Registration Number / Equipment ID</td>
+        <td colspan="2" style="width: 67%;"><%= [coverData.registry, coverData.equipId].filter(v => v && v !== 'N/A').filter((v, i, a) => a.indexOf(v) === i).join(' / ') || 'N/A' %></td>
+    </tr>
+
+                                              <tr>
+        <td>Supplementary Review</td>
+        <td colspan="2"><%= formatVal(finalReport.SUPP_REV) %></td>
+    </tr>
+                                              <tr>
+        <td>Inspection Type</td>
+        <td colspan="2"><%= formatVal(finalReport.INSP_TYPE) %></td>
+    </tr>
+                                              <tr>
+        <td>Previous Report Reviewed</td>
+        <td colspan="2"><%= formatVal(finalReport.PREV_REVIEW) %></td>
+    </tr>
+                                              <tr>
+        <td>Equipment Repairs</td>
+        <td colspan="2"><%= formatVal(finalReport.REPAIRS) %></td>
+    </tr>
+                                              <tr>
+        <td>Field Inspection Summary</td>
+        <td colspan="2"><%= formatVal(finalReport.FIELD_SUMMARY) %></td>
+    </tr>
+                                              <tr>
+        <td>Corrective/Maintenance Suggestions</td>
+        <td colspan="2"><%= formatVal(finalReport.CORR_ACTIONS) %></td>
+    </tr>
+                                              <tr>
+        <td>Field Inspection Recommendations</td>
+        <td colspan="2"><%= formatVal(finalReport.FIELD_REC) %></td>
+    </tr>
+                                              <tr>
+        <td>Preparations/Planning Required for next inspection</td>
+        <td colspan="2"><%= formatVal(finalReport.FIELD_PREP) %></td>
+    </tr>
+                                              <tr>
+        <td style="font-weight: 800; color: #1a365d;">Next Scheduled UT Survey</td>
+        <td style="font-weight: 800; color: #1a365d;">2031-08-15</td>
+        <td style="font-weight: 800; color: #1a365d;">Master regulatory deadline for next comprehensive thickness test.</td>
+    </tr>
+                                              <tr>
+        <td>Chief Inspector Comments</td>
+        <td colspan="2"><%= formatVal(finalReport.REV_COMMENTS) %></td>
+    </tr>
+                                              <tr>
+        <td>Suitable for continued service</td>
+        <td colspan="2"><%= formatVal(finalReport.CONT_SERVICE) %></td>
+    </tr>
+                                              <tr>
+        <td>Review Date</td>
+        <td colspan="2"><%= finalReport.formattedRevDate %></td>
+    </tr>
+                                              <tr>
+        <td>Review Status</td>
+        <td colspan="2"><%= formatVal(finalReport.REV_STATUS) %></td>
+    </tr>
+                                              <tr>
+        <td>Assigned Interval (months)</td>
+        <td colspan="2"><%= formatVal(finalReport.EQUIP_ASS_INTERVAL) %></td>
+    </tr>
+                                              <tr>
+        <td>Next Inspection Due</td>
+        <td colspan="2"><%= formatVal(finalReport.EQUIP_NEXT_DUE) %></td>
+    </tr>
+                                          </tbody>
+                                      </table>
+
+<div class="final-page-bottom" style="display: flex; flex-direction: column; gap: 10px; margin-top: auto; flex: 1; padding-top: 5px; padding-bottom: 5px;">
+
+                                            <!-- Signatures -->
+                                            <div
+                                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; margin-top: 5px;">
+                                                <!-- Signature 1 -->
+                                                <div class="sig-block" style="width: 100%;">
+                                                    <div class="sig-img-container"
+                                                        style="border-bottom: 1.5px solid #1a365d; height: 75px; display: flex; align-items: flex-end; padding-bottom: 2px;">
+                                                        <% if (sigImg) { %>
+                                                            <img src="<%= sigImg %>" alt="Inspector Signature"
+                                                                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                                            <% } %>
+                                                    </div>
+                                                    <div class="sig-title"
+                                                        style="margin-top: 4px; font-weight: 900; font-size: 9px;">FIELD
+                                                        INSPECTOR VERIFICATION</div>
+                                                    <div class="sig-line" style="margin-top: 6px;">
+                                                        <div>Name: <%= finalReport.EQUIP_INSPECTOR ? finalReport.EQUIP_INSPECTOR.join(', ') : 'E. Glenn Allen' %>
+                                                        </div>
+                                                        <div>Cert: API-510 / CGSB MT/PT/UT</div>
+                                                        <div>Reg No: 9738</div>
+                                                        
+                                                    </div>
+                                                </div>
+
+                                                <!-- Signature 2 -->
+                                                <div class="sig-block" style="width: 100%;">
+                                                    <div class="sig-img-container"
+                                                        style="border-bottom: 1.5px solid #1a365d; height: 75px; display: flex; align-items: flex-end; padding-bottom: 2px;">
+                                                        <% if (sigChiefImg) { %>
+                                                            <img src="<%= sigChiefImg %>" alt="Chief Inspector Signature"
+                                                                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                                        <% } %>
+                                                    </div>
+                                                    <div class="sig-title"
+                                                        style="margin-top: 4px; font-weight: 900; font-size: 9px;">CHIEF
+                                                        INSPECTOR APPROVAL</div>
+                                                    <div class="sig-line" style="margin-top: 6px; display: flex; flex-direction: column; gap: 2px;">
+                                                        <div><span style="font-weight: 700;">Reviewed By:</span> <%= formatVal(finalReport.REV_BY) %></div>
+                                                        <div><span style="font-weight: 700;">Certification Number:</span> <%= formatVal(finalReport.CERT_NUM) %></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <p class="disclaimer-text" style="margin-top: 5px; margin-bottom: 0;">
+                                                <strong>DISCLAIMER & LIMITATION OF LIABILITY:</strong> The final evaluation, acceptance, and operational implementation of the recommended re-inspection intervals and fitness-for-service verdicts are the sole responsibility of the Owner-User/Client. This report represents professional inspection findings and non-destructive testing (NDT) / ultrasonic thickness (UT) measurements recorded on the specified survey date by a Certified In-Service Inspector (ISI). Any financial liability of the Inspector, Examining Agency, or its affiliates for direct, indirect, special, incidental, or consequential damages, losses, or business interruptions arising out of or in connection with the use of, reliance upon, or errors or omissions in this inspection report, shall be strictly capped in the aggregate at an amount not to exceed the actual fee paid for this specific inspection service. The inspector makes no warranties, express or implied, regarding the future operational safety, corrosion rates, or mechanical integrity of this pressure containment equipment under active process operating chemistry.
+                                            </p>
+                                        </div>
+
+                                        <div class="footer-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 1;"></div>
+    <div style="font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">ASSETTRACKER.CA</div>
+    <div style="flex: 1; text-align: right;">Page <%= currentPageIdx++ %> of <%= totalReportPages %></div>
+</div>
+                                </div>
+                                <!-- Chart.js Initialization Script -->
+                                <script>
+                                        document.addEventListener('DOMContentLoaded', () => {
+                                            const cmls = <%- JSON.stringify(processedCMLs) %>;
+
+                                            // Plugin for bar values
+                                            const barValuePlugin = {
+                                                id: 'barValuePlugin',
+                                                afterDatasetsDraw: (chart) => {
+                                                    const ctx = chart.ctx;
+                                                    const xAxis = chart.scales.x;
+                                                    const yAxis = chart.scales.y;
+                                                    chart.data.datasets.forEach((dataset, i) => {
+                                                        const meta = chart.getDatasetMeta(i);
+                                                        meta.data.forEach((bar, index) => {
+                                                            const data = dataset.data[index];
+                                                            if (data !== null && data !== undefined) {
+                                                                ctx.fillStyle = '#1a365d';
+                                                                ctx.font = 'bold 8px Inter';
+                                                                ctx.textAlign = 'center';
+                                                                ctx.textBaseline = 'bottom';
+                                                                ctx.fillText(data.toFixed(3), bar.x, bar.y - 3);
+                                                            } else {
+                                                                const baseY = yAxis.getPixelForValue(0);
+                                                                ctx.fillStyle = '#94a3b8';
+                                                                ctx.font = 'bold 8px Inter';
+                                                                ctx.textAlign = 'center';
+                                                                ctx.textBaseline = 'bottom';
+                                                                ctx.fillText('N/A', bar.x, baseY - 5);
+                                                            }
+                                                        });
+                                                    });
+                                                }
+                                            };
+
+                                            cmls.forEach(cml => {
+                                                // STANDALONE LINE CHARTS
+                                                const lineCtx = document.getElementById(`lineChart_standalone_${cml.index}`);
+                                                if (lineCtx) {
+                                                    const parseYear = (val) => {
+                                                        if (!val) return null;
+                                                        const match = String(val).match(/\d{4}/);
+                                                        return match ? parseInt(match[0], 10) : null;
+                                                    };
+
+                                                    const raw = cml.rawCml || {};
+                                                    const points = [];
+
+                                                    const baseYear = parseYear(raw.YEAR_BASE);
+                                                    if (baseYear !== null && cml.installThk !== null) {
+                                                        points.push({ x: baseYear, y: cml.installThk, label: 'Base' });
+                                                    }
+
+                                                    if (raw.YEAR_INTERMEDIATE !== "" && raw.MIN_INTERMEDIATE !== "") {
+                                                        const interYear = parseYear(raw.YEAR_INTERMEDIATE);
+                                                        if (interYear !== null && cml.intermediateThk !== null) {
+                                                            points.push({ x: interYear, y: cml.intermediateThk, label: 'Intermediate' });
+                                                        }
+                                                    }
+
+                                                    const prevYear = parseYear(raw.YEAR_PREVIOUS);
+                                                    if (prevYear !== null && cml.prevThk !== null) {
+                                                        points.push({ x: prevYear, y: cml.prevThk, label: 'Previous' });
+                                                    }
+
+                                                    const currentYear = parseYear(raw.CLEAN_DATE) || parseYear(raw.EV_EVENT_DATE) || parseYear(raw.EVENT_DATE);
+                                                    if (currentYear !== null && cml.currentThk !== null) {
+                                                        points.push({ x: currentYear, y: cml.currentThk, label: 'Current' });
+                                                    }
+
+                                                    // Combine labels if multiple readings happened in the same year, and keep the latest reading's thickness
+                                                    const uniquePointsMap = new Map();
+                                                    points.forEach(p => {
+                                                        if (uniquePointsMap.has(p.x)) {
+                                                            const existing = uniquePointsMap.get(p.x);
+                                                            existing.label = existing.label + ' / ' + p.label;
+                                                            existing.y = p.y;
+                                                        } else {
+                                                            uniquePointsMap.set(p.x, { ...p });
+                                                        }
+                                                    });
+                                                    const sortedPoints = Array.from(uniquePointsMap.values()).sort((a, b) => a.x - b.x);
+
+                                                    // For the baselines, we span them across minX and maxX
+                                                    let minX = sortedPoints.length > 0 ? sortedPoints[0].x : currentYear;
+                                                    let maxX = sortedPoints.length > 0 ? sortedPoints[sortedPoints.length - 1].x : currentYear;
+
+                                                    if (minX === maxX) { minX -= 1; maxX += 1; }
+                                                    if (minX == null) { minX = 2000; maxX = 2030; }
+
+                                                    const baselineData = [{ x: minX, y: cml.nomThk }, { x: maxX, y: cml.nomThk }];
+                                                    const tMinData = [{ x: minX, y: cml.tMin }, { x: maxX, y: cml.tMin }];
+
+                                                    const datasets = [
+                                                        {
+                                                            label: 'Historical',
+                                                            data: sortedPoints,
+                                                            borderColor: '#3b82f6',
+                                                            backgroundColor: '#ffffff',
+                                                            borderWidth: 2,
+                                                            pointRadius: 4,
+                                                            pointBorderColor: '#3b82f6',
+                                                            pointBorderWidth: 2,
+                                                            fill: false
+                                                        }
+                                                    ];
+
+                                                    datasets.push({
+                                                        label: 'Nominal Baseline',
+                                                        data: baselineData,
+                                                        borderColor: '#94a3b8',
+                                                        borderDash: [4, 4],
+                                                        borderWidth: 1.5,
+                                                        pointRadius: 0,
+                                                        fill: false
+                                                    });
+
+                                                    datasets.push({
+                                                        label: 'Min Base (T-Min)',
+                                                        data: tMinData,
+                                                        borderColor: '#dc2626',
+                                                        borderDash: [4, 4],
+                                                        borderWidth: 1.5,
+                                                        pointRadius: 0,
+                                                        fill: false
+                                                    });
+
+                                                    let suggestedMaxX = maxX;
+                                                    let suggestedMinX = minX;
+
+                                                    const pointLabelsPlugin = {
+                                                        id: 'pointLabelsPlugin',
+                                                        afterDatasetsDraw: (chart) => {
+                                                            const ctx = chart.ctx;
+                                                            chart.data.datasets.forEach((dataset, i) => {
+                                                                if (dataset.label === 'Historical') {
+                                                                    const meta = chart.getDatasetMeta(i);
+                                                                    if (!meta.hidden) {
+                                                                        meta.data.forEach((element, index) => {
+                                                                            const dataPoint = dataset.data[index];
+                                                                            if (dataPoint.label) {
+                                                                                ctx.save();
+                                                                                ctx.fillStyle = '#1a365d';
+                                                                                ctx.font = 'bold 7px sans-serif';
+                                                                                ctx.textAlign = 'center';
+                                                                                ctx.textBaseline = 'bottom';
+                                                                                ctx.fillText(dataPoint.label, element.x, element.y - 6);
+                                                                                ctx.restore();
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                } else if (dataset.label === 'Min Base (T-Min)' || dataset.label === 'Nominal Baseline') {
+                                                                    const meta = chart.getDatasetMeta(i);
+                                                                    if (!meta.hidden && meta.data.length > 0) {
+                                                                        const lastElement = meta.data[meta.data.length - 1];
+                                                                        ctx.save();
+                                                                        ctx.fillStyle = dataset.borderColor;
+                                                                        ctx.font = 'bold 7px sans-serif';
+                                                                        ctx.textAlign = 'right';
+                                                                        ctx.textBaseline = 'bottom';
+                                                                        ctx.fillText(dataset.label, lastElement.x, lastElement.y - 3);
+                                                                        ctx.restore();
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                    };
+
+                                                    new Chart(lineCtx, {
+                                                        type: 'line',
+                                                        data: { datasets },
+                                                        plugins: [pointLabelsPlugin],
+                                                        options: {
+                                                            responsive: true,
+                                                            maintainAspectRatio: false,
+                                                            plugins: {
+                                                                legend: { display: false },
+                                                                title: {
+                                                                    display: true,
+                                                                    text: 'LTCR',
+                                                                    font: { size: 7.5, weight: 'bold' },
+                                                                    color: '#3b82f6',
+                                                                    padding: { bottom: 5, top: 0 }
+                                                                }
+                                                            },
+                                                            scales: {
+                                                                x: {
+                                                                    type: 'linear',
+                                                                    min: suggestedMinX,
+                                                                    max: suggestedMaxX,
+                                                                    ticks: {
+                                                                        font: { size: 6 },
+                                                                        callback: function (value) { return value.toString(); },
+                                                                        stepSize: 1
+                                                                    },
+                                                                    grid: { display: false }
+                                                                },
+                                                                y: {
+                                                                    min: 0,
+                                                                    suggestedMax: Math.max(cml.currentThk || 0, cml.nomThk || 0) * 1.2,
+                                                                    title: { display: true, text: 'Thickness (in)', font: { size: 6 } },
+                                                                    ticks: { font: { size: 6 } },
+                                                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+                                                // BAR CHART
+                                                const barCtx = document.getElementById(`barChart_${cml.index}`);
+                                                if (barCtx) {
+                                                    const barLabels = [];
+                                                    const dataPoints = [];
+                                                    const bgColors = [];
+
+                                                    // Always push 4 rows to keep chart spacing consistent and show missing keys as N/A
+                                                    barLabels.push('Nominal');
+                                                    dataPoints.push(cml.componentNominal ? cml.componentNominal : null);
+                                                    bgColors.push('#10b981'); // Emerald green for nominal
+
+                                                    barLabels.push(cml.chartLabels.base);
+                                                    dataPoints.push(cml.hasBase ? cml.installThk : null);
+                                                    bgColors.push('#94a3b8'); // Gray for base
+
+                                                    barLabels.push(cml.chartLabels.prev);
+                                                    dataPoints.push(cml.hasPrev ? cml.prevThk : null);
+                                                    bgColors.push('#fbbf24'); // Amber/yellow for previous
+
+                                                    barLabels.push(cml.chartLabels.inter);
+                                                    dataPoints.push(cml.hasIntermediate ? cml.intermediateThk : null);
+                                                    bgColors.push('#60a5fa'); // Blue for intermediate
+
+                                                    barLabels.push(cml.chartLabels.curr);
+                                                    dataPoints.push(cml.hasCurrent ? cml.currentThk : null);
+                                                    bgColors.push('#4ade80'); // Green for current
+
+                                                    const limitLinePlugin = {
+                                                        id: 'limitLinePlugin',
+                                                        afterDatasetsDraw: (chart) => {
+                                                            const ctx = chart.ctx;
+                                                            const xAxis = chart.scales.x;
+                                                            const yAxis = chart.scales.y;
+
+                                                            const drawLine = (val, color, label) => {
+                                                                if (val === null || val === undefined || isNaN(val)) return;
+                                                                const y = yAxis.getPixelForValue(val);
+                                                                ctx.save();
+                                                                ctx.beginPath();
+                                                                ctx.setLineDash([4, 4]);
+                                                                ctx.moveTo(xAxis.left, y);
+                                                                ctx.lineTo(xAxis.right, y);
+                                                                ctx.lineWidth = 1.5;
+                                                                ctx.strokeStyle = color;
+                                                                ctx.stroke();
+
+                                                                ctx.fillStyle = color;
+                                                                ctx.font = 'bold 7px Inter';
+                                                                ctx.textAlign = 'right';
+                                                                ctx.textBaseline = 'bottom';
+                                                                ctx.fillText(label + ': ' + val.toFixed(3) + '"', xAxis.right, y - 2);
+                                                                ctx.restore();
+                                                            };
+
+                                                            drawLine(cml.tMin, '#dc2626', 't_min');
+
+                                                            if (cml.isNozzle && cml.tMinStructural) {
+                                                                drawLine(cml.tMinStructural, '#991b1b', 'UG45');
+                                                            }
+                                                        }
+                                                    };
+
+                                                    new Chart(barCtx, {
+                                                        type: 'bar',
+                                                        plugins: [limitLinePlugin, barValuePlugin],
+                                                        data: {
+                                                            labels: barLabels,
+                                                            datasets: [{
+                                                                data: dataPoints,
+                                                                backgroundColor: bgColors,
+                                                                barThickness: 18
+                                                            }]
+                                                        },
+                                                        options: {
+                                                            maintainAspectRatio: false,
+                                                            layout: { padding: { top: 15, right: 10 } },
+                                                            plugins: {
+                                                                legend: { display: false }
+                                                            },
+                                                            scales: {
+                                                                y: {
+                                                                    min: 0,
+                                                                    suggestedMax: Math.max(cml.currentThk || 0, cml.tMin || 0, cml.tMinStructural || 0, cml.componentNominal || 0) * 1.2,
+                                                                    ticks: { font: { size: 6 } },
+                                                                    grid: { color: 'rgba(0,0,0,0.05)' }
+                                                                },
+                                                                x: { ticks: { font: { size: 6 } }, grid: { display: false } }
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        });
+                                </script>
+</body>
+
+</html>
